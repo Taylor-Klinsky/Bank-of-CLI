@@ -1,4 +1,4 @@
-package org.revature.business;
+package org.revature;
 
 import java.math.*;
 
@@ -9,8 +9,8 @@ public class Business {
         this.accountID = accountID;
     }
 
-    static boolean validateLogin(int accountID, int PIN) {
-
+    static boolean validateLogin(int accountID, int pin) {
+        return Repository.verifyAccount(accountID, pin);
     }
 
     // TODO: implement Deposit

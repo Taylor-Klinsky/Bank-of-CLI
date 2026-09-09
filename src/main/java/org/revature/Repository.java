@@ -1,4 +1,4 @@
-package org.revature.repository;
+package org.revature;
 
 public class Repository {
     // TODO: implement checkAccountID
