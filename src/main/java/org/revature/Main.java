@@ -11,6 +11,6 @@ public class Main {
     }
 
     private static void run(Scanner scanner) {
-
+        API.logIn(scanner);
     }
 }

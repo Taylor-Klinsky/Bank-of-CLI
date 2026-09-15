@@ -13,7 +13,7 @@ public class API {
 
     private static final Logger logger = LoggerFactory.getLogger(API.class);
 
-    public void LogIn(Scanner scanner) {
+    public static void logIn(Scanner scanner) {
         boolean success = false;
 
         while (!success) {
