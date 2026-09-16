@@ -6,5 +6,6 @@ public interface AccountService {
     void addAccount(int pin);
     public Account findAccount(int id, int pin);
     void withdraw(Account account, double amount);
-    void deposit(Account fromAccount, Account toAccount, double amount);
+    void deposit(Account account, double amount);
+    void transfer(Account fromAccount, Account toAccount, double amount);
 }

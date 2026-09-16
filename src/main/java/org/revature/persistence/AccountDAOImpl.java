@@ -26,7 +26,12 @@ public class AccountDAOImpl implements AccountDAO{
     }
 
     @Override
-    public void deposit(Account fromAccount, Account toAccount, double amount) {
+    public void deposit(Account account, double amount) {
+
+    }
+
+    @Override
+    public void transfer(Account fromAccount, Account toAccount, double amount) {
 
     }
 

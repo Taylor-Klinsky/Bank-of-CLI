@@ -8,6 +8,7 @@ public interface AccountDAO {
     void addAccount(Account account);
     Account getAccountById(int id);
     void withdraw(Account account, double amount);
-    void deposit(Account fromAccount, Account toAccount, double amount);
+    void deposit(Account account, double amount);
+    void transfer(Account fromAccount, Account toAccount, double amount);
     List<Account> getAllAccounts();
 }
