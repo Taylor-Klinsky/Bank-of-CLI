@@ -2,13 +2,14 @@ package org.revature.persistence;
 
 import org.revature.domain.Account;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface AccountDAO {
     void addAccount(Account account);
-    Account getAccountById(int id);
-    void withdraw(Account account, double amount);
-    void deposit(Account account, double amount);
-    void transfer(Account fromAccount, Account toAccount, double amount);
+    Account getAccountById(long accountNumber);
+    void withdraw(Account account, BigDecimal amount);
+    void deposit(Account account, BigDecimal amount);
+    void transfer(Account fromAccount, Account toAccount, BigDecimal amount);
     List<Account> getAllAccounts();
 }

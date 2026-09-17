@@ -1,23 +1,32 @@
 package org.revature.domain;
 
-public class Account {
-    private int id;
-    private int pin;
-    private double balance;
+import java.math.BigDecimal;
 
-    public Account(int id, int pin, double balance) {
-        this.id = id;
+public class Account {
+    private Long accountNumber;
+    private int pin;
+    private BigDecimal balance;
+
+    public Account() {}
+
+    public Account(int pin) {
+        this.pin = pin;
+        balance = new BigDecimal(0);
+    }
+
+    public Account(long accountNumber, int pin, BigDecimal balance) {
+        this.accountNumber = accountNumber;
         this.pin = pin;
         this.balance = balance;
     }
 
     // Getters and setters
-    public int getId() {
-        return id;
+    public long getAccountNumber() {
+        return accountNumber;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setAccountNumber(long accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public int getPin() {
@@ -28,11 +37,11 @@ public class Account {
         this.pin = pin;
     }
 
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/src/main/java/org/revature/persistence/AccountDAOImpl.java" value="6e4181f5-1535-40ef-a3fc-b0966ec20e01" />
+    <file url="file://$PROJECT_DIR$/src/main/java/org/revature/persistence/LogDAOImpl.java" value="6e4181f5-1535-40ef-a3fc-b0966ec20e01" />
+  </component>
+</project>
