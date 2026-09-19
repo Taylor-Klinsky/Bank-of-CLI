@@ -4,17 +4,17 @@ import java.math.BigDecimal;
 
 public class Account {
     private Long accountNumber;
-    private int pin;
+    private String pin;
     private BigDecimal balance;
 
     public Account() {}
 
-    public Account(int pin) {
+    public Account(String pin) {
         this.pin = pin;
         balance = new BigDecimal(0);
     }
 
-    public Account(long accountNumber, int pin, BigDecimal balance) {
+    public Account(long accountNumber, String pin, BigDecimal balance) {
         this.accountNumber = accountNumber;
         this.pin = pin;
         this.balance = balance;
@@ -29,11 +29,11 @@ public class Account {
         this.accountNumber = accountNumber;
     }
 
-    public int getPin() {
+    public String getPin() {
         return pin;
     }
 
-    public void setPin(int pin) {
+    public void setPin(String pin) {
         this.pin = pin;
     }
 
