@@ -40,7 +40,7 @@ public class BankRepl {
             case "withdraw" -> withdraw();
             case "transfer" -> transfer();
             case "balance" -> balance();
-            case "transactions" -> transactions();
+            case "trans" -> transactions();
             case "help" -> printHelp();
             case "exit" -> {
                 return false;
@@ -48,6 +48,7 @@ public class BankRepl {
             case "create" -> create();
             case "login" -> logIn();
             case "logout" -> logOut();
+            case "pin" -> pin();
             default -> throw new IllegalArgumentException("Invalid command: " + command);
         }
         return true;
@@ -60,7 +61,8 @@ public class BankRepl {
             System.out.print("withdraw - Withdraw funds from your account\n");
             System.out.print("transfer - Transfer funds from one account to another\n");
             System.out.print("balance - Check your account's balance\n");
-            System.out.print("transactions - List your recent transactions\n");
+            System.out.print("trans - List your recent transactions\n");
+            System.out.print("pin - Change pin\n");
             System.out.print("logout - Log out of this account\n");
         } else {
             System.out.print("login - Log into an account\n");
@@ -192,6 +194,35 @@ public class BankRepl {
         }
     }
 
+    private void pin() {
+        if (!accountService.isLoggedIn()) {
+            System.out.print("You must be logged in to change your PIN\n");
+            return;
+        }
+
+        System.out.print("Enter your old PIN: ");
+
+        try {
+            String pin = readPin();
+            System.out.println("PIN read, checking with accountService");
+            accountService.checkPin(pin);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
+        System.out.print("Enter new PIN: ");
+        String newPin = readPin();
+        System.out.print("Reenter new PIN: ");
+        String newPinReentry = readPin();
+
+        if (newPin.compareTo(newPinReentry) != 0) {
+            System.out.print("PINs do not match\n");
+        } else {
+            accountService.setPin(newPin);
+        }
+    }
+
     // Helper methods
     private void printTransaction(Transaction transaction) {
         String amount = formatMoney(transaction.getAmount());
@@ -273,10 +304,11 @@ public class BankRepl {
         while (true) {
             String input = scanner.nextLine().trim();
 
-            if (input.matches("\\d{4}")) {
+            try {
+                accountService.validatePinFormat(input);
                 return input;
-            } else {
-                System.out.print("PIN must be 4 digits\n");
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
                 System.out.print("Please try again: ");
             }
         }

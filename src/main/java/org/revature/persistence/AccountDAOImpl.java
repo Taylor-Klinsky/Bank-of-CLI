@@ -1,5 +1,6 @@
 package org.revature.persistence;
 
+import com.mysql.cj.x.protobuf.MysqlxPrepare;
 import org.revature.domain.Account;
 
 import java.math.BigDecimal;
@@ -26,7 +27,9 @@ public class AccountDAOImpl implements AccountDAO{
     private static final String DEPOSIT_TO_ACCOUNT_SQL = """
             UPDATE accounts SET balance = balance + ? WHERE account_number = ?
             """;
-
+    private static final String SET_PIN_SQL = """
+            UPDATE accounts SET pin = ? WHERE account_number = ?
+            """;
 
 
     private final Connection connection;
@@ -72,6 +75,17 @@ public class AccountDAOImpl implements AccountDAO{
         } catch (SQLException e) {
             System.out.print("Something went wrong with the database\n");
             return null;
+        }
+    }
+
+    @Override
+    public void setPin(long accountNumber, String pin) {
+        try (PreparedStatement statement = connection.prepareStatement(SET_PIN_SQL)) {
+            statement.setString(1, pin);
+            statement.setLong(2, accountNumber);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.print("Something went wrong updating the database\n");
         }
     }
 

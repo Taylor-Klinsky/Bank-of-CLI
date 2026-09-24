@@ -3,11 +3,10 @@ package org.revature.service;
 import org.revature.TransactionType;
 import org.revature.domain.Account;
 import org.revature.domain.Transaction;
-import org.revature.exception.AccountNotFoundException;
-import org.revature.exception.InsufficientFundsException;
-import org.revature.exception.InvalidAmountException;
-import org.revature.exception.NotLoggedInException;
+import org.revature.exception.*;
 import org.revature.persistence.AccountDAO;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -15,6 +14,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class AccountServiceImpl implements AccountService{
+    private static final Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
     private final AccountDAO accountDAO;
     private final TransactionService transactionService;
     private Account account;
@@ -33,12 +33,15 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public void logIn(long accountNumber, String pin) throws AccountNotFoundException {
+        logOut();
         Account account = accountDAO.getAccountByAccountNumber(accountNumber);
         if (account == null) {
             throw new AccountNotFoundException("Account not found");
         } else if (account.getPin().compareTo(pin) == 0) {
+            logger.info("Logged into account {}", accountNumber);
             this.account = account;
         } else {
+            logger.error("Incorrect PIN entered for account {}", accountNumber);
             throw new AccountNotFoundException("Incorrect PIN");
         }
     }
@@ -119,6 +122,22 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
+    public void setPin(String pin) {
+        requireLoggedIn();
+        validatePinFormat(pin);
+        accountDAO.setPin(account.getAccountNumber(), pin);
+        account.setPin(pin);
+    }
+
+    @Override
+    public void checkPin(String pin) throws InvalidCredentialException {
+        requireLoggedIn();
+        if (account.getPin().compareTo(pin) != 0) {
+            throw new InvalidCredentialException("Incorrect PIN");
+        }
+    }
+
+    @Override
     public List<Transaction> getTransactions(Long accountNumber, int quantity){
         requireLoggedIn();
         return transactionService.getTransactions(account.getAccountNumber(), quantity);
@@ -167,6 +186,13 @@ public class AccountServiceImpl implements AccountService{
     private void validateSufficientFunds(BigDecimal amount) throws InsufficientFundsException {
         if (amount.compareTo(account.getBalance()) > 0) {
             throw new InsufficientFundsException("Insufficient funds");
+        }
+    }
+
+    @Override
+    public void validatePinFormat(String input) throws IllegalArgumentException {
+        if (!input.matches("\\d{4}")) {
+            throw new IllegalArgumentException("PIN must be 4 digits");
         }
     }
 }

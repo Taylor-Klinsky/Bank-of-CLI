@@ -14,6 +14,8 @@ public interface AccountDAO {
      */
     Account getAccountByAccountNumber(long accountNumber);
 
+    void setPin(long accountNumber, String pin);
+
     void withdraw(long accountNumber, BigDecimal amount);
     void deposit(long accountNumber, BigDecimal amount);
     void transfer(long fromAccountNumber, long toAccountNumber, BigDecimal amount);
