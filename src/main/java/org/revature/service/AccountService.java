@@ -18,7 +18,8 @@ public interface AccountService {
      * Gets the matching account.
      * @param accountNumber
      * @param pin
-     * @throws AccountNotFoundException - if account number isn't found, or if pin mismatch
+     * @throws AccountNotFoundException - if account number isn't found
+     * @throws InvalidCredentialException - if PIN is incorrect
      */
     void logIn(long accountNumber, String pin);
 
@@ -26,19 +27,19 @@ public interface AccountService {
 
     /**
      *
-     * @param amount
-     * @throws InsufficientFundsException
-     * @throws InvalidAmountException
-     * @throws NotLoggedInException
+     * @param amount - amount of money to withdraw
+     * @throws InsufficientFundsException - if there isn't enough money in the account to withdraw
+     * @throws InvalidAmountException - if the amount of money is negative or has improper decimals
+     * @throws NotLoggedInException - if the user isn't logged in
      *
      */
     void withdraw(BigDecimal amount) throws SQLException;
 
     /**
      *
-     * @param amount
-     * @throws InvalidAmountException
-     * @throws NotLoggedInException
+     * @param amount - amount of money to deposit
+     * @throws InvalidAmountException - if the amount of money is negative or has improper decimals
+     * @throws NotLoggedInException - if the user isn't logged in
      */
     void deposit(BigDecimal amount) throws SQLException;
 
@@ -63,7 +64,7 @@ public interface AccountService {
      * @throws IllegalArgumentException
      * @throws InvalidCredentialException
      */
-    void checkPin(String pin) throws InvalidCredentialException;
+    void checkPin(long accountNumber, String pin) throws InvalidCredentialException;
 
     void validatePinFormat(String pin);
 

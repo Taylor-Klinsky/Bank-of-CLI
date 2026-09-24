@@ -7,6 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.revature.domain.Account;
 import org.revature.exception.AccountNotFoundException;
+import org.revature.exception.InvalidCredentialException;
+import org.revature.exception.NotLoggedInException;
 import org.revature.persistence.AccountDAO;
 
 import java.math.BigDecimal;
@@ -19,8 +21,6 @@ import static org.mockito.Mockito.when;
 public class AccountServiceImplTest {
     @Mock
     private AccountDAO accountDAO;
-    @Mock
-    private TransactionService transactionService;
 
     @InjectMocks
     private AccountServiceImpl accountService;
@@ -42,12 +42,20 @@ public class AccountServiceImplTest {
 
         when(accountDAO.getAccountByAccountNumber(12345678L)).thenReturn(account);
 
-        assertThrows(AccountNotFoundException.class, () -> accountService.logIn(12345678L, "0000"));
+        assertThrows(InvalidCredentialException.class, () -> accountService.logIn(12345678L, "0000"));
         verify(accountDAO).getAccountByAccountNumber(12345678L);
         assertFalse(accountService.isLoggedIn());
     }
 
-    private Account account(long accountNumber, String pin, BigDecimal balance) {
-        return new Account(accountNumber, pin, balance);
+    @Test
+    void logInWithIncorrectAccountNumberThrowsException() {
+        assertThrows(AccountNotFoundException.class, () -> accountService.logIn(0L, "0000"));
+        verify(accountDAO).getAccountByAccountNumber(0L);
+        assertFalse(accountService.isLoggedIn());
+    }
+
+    @Test
+    void checkBalanceWhileNotLoggedInThrowsException() {
+        assertThrows(NotLoggedInException.class, () -> accountService.getBalance());
     }
 }

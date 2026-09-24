@@ -1,6 +1,5 @@
 package org.revature.persistence;
 
-import com.mysql.cj.x.protobuf.MysqlxPrepare;
 import org.revature.domain.Account;
 
 import java.math.BigDecimal;
@@ -52,7 +51,7 @@ public class AccountDAOImpl implements AccountDAO{
                 throw new IllegalStateException("Account was not created");
             }
         } catch (SQLException e) {
-            System.out.print("Something went wrong with the database\n");
+            System.out.print("Something went wrong with the database while adding the account\n");
             return null;
         }
     }
@@ -73,7 +72,7 @@ public class AccountDAOImpl implements AccountDAO{
                 return null;
             }
         } catch (SQLException e) {
-            System.out.print("Something went wrong with the database\n");
+            System.out.print("Something went wrong with the database while getting the account\n");
             return null;
         }
     }
@@ -85,7 +84,7 @@ public class AccountDAOImpl implements AccountDAO{
             statement.setLong(2, accountNumber);
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.out.print("Something went wrong updating the database\n");
+            System.out.print("Something went wrong with the database while updating the pin\n");
         }
     }
 
@@ -96,7 +95,7 @@ public class AccountDAOImpl implements AccountDAO{
             statement.setLong(2, accountNumber);
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.out.print("Something went wrong with the database\n");
+            System.out.print("Something went wrong with the database during a withdrawal\n");
         }
     }
 
@@ -107,7 +106,7 @@ public class AccountDAOImpl implements AccountDAO{
             statement.setLong(2, accountNumber);
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.out.print("Something went wrong with the database\n");
+            System.out.print("Something went wrong with the database during a deposit\n");
         }
     }
 
@@ -131,7 +130,7 @@ public class AccountDAOImpl implements AccountDAO{
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.print("Something went wrong with the database during a transfer\n");
         }
     }
 }

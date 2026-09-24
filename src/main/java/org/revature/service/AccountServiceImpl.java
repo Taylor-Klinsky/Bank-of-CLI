@@ -17,8 +17,8 @@ public class AccountServiceImpl implements AccountService{
     private static final Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
     private final AccountDAO accountDAO;
     private final TransactionService transactionService;
+    private final Connection connection;
     private Account account;
-    private Connection connection;
 
     public AccountServiceImpl(Connection connection, AccountDAO accountDAO, TransactionService transactionService) {
         this.connection = connection;
@@ -29,33 +29,38 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public void addAccount(String pin) {
         account = accountDAO.addAccount(pin);
+        logger.info("Account {} created", account.getAccountNumber());
     }
 
     @Override
-    public void logIn(long accountNumber, String pin) throws AccountNotFoundException {
+    public void logIn(long accountNumber, String pin) throws AccountNotFoundException, InvalidCredentialException {
         logOut();
         Account account = accountDAO.getAccountByAccountNumber(accountNumber);
         if (account == null) {
             throw new AccountNotFoundException("Account not found");
-        } else if (account.getPin().compareTo(pin) == 0) {
-            logger.info("Logged into account {}", accountNumber);
-            this.account = account;
-        } else {
-            logger.error("Incorrect PIN entered for account {}", accountNumber);
-            throw new AccountNotFoundException("Incorrect PIN");
         }
+        checkPin(accountNumber, pin);
+        logger.info("Logged into account {}", accountNumber);
+        this.account = account;
     }
 
     @Override
     public void logOut() {
+        if (account != null) {
+            logger.info("Logged out of account {}", account.getAccountNumber());
+        }
         account = null;
     }
 
     @Override
     public void withdraw(BigDecimal amount) throws InsufficientFundsException, SQLException {
-        requireLoggedIn();
         validateTransaction(amount);
-        validateSufficientFunds(amount);
+        try {
+            validateSufficientFunds(amount);
+        } catch (InsufficientFundsException e) {
+            logger.warn("Withdrawal of ${} from account {} rejected: insufficient funds", amount, account.getAccountNumber());
+            throw e;
+        }
 
         try {
             connection.setAutoCommit(false);
@@ -65,17 +70,19 @@ public class AccountServiceImpl implements AccountService{
             transactionService.recordTransaction(account.getAccountNumber(), TransactionType.WITHDRAWAL, amount, null);
 
             connection.commit();
+            logger.info("Withdrawal of ${} from account {} completed", amount, account.getAccountNumber());
         } catch (SQLException e) {
             connection.rollback();
+            logger.error("Database error during withdrawal of ${} from account {}", amount, account.getAccountNumber());
             throw e;
-        } finally {
+        }
+        finally {
             connection.setAutoCommit(true);
         }
     }
 
     @Override
     public void deposit(BigDecimal amount) throws SQLException{
-        requireLoggedIn();
         validateTransaction(amount);
 
         try {
@@ -86,8 +93,10 @@ public class AccountServiceImpl implements AccountService{
             transactionService.recordTransaction(account.getAccountNumber(), TransactionType.DEPOSIT, amount, null);
 
             connection.commit();
+            logger.info("Deposit of ${} to account {} completed", amount, account.getAccountNumber());
         } catch (SQLException e) {
             connection.rollback();
+            logger.error("Database error during deposit of ${} to account {}", amount, account.getAccountNumber());
             throw e;
         } finally {
             connection.setAutoCommit(true);
@@ -96,11 +105,17 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public void transfer(long accountNumber, BigDecimal amount) throws AccountNotFoundException, InsufficientFundsException, SQLException{
-        requireLoggedIn();
         validateTransaction(amount);
-        validateSufficientFunds(amount);
+
+        try {
+            validateSufficientFunds(amount);
+        } catch (InsufficientFundsException e) {
+            logger.warn("Transfer of ${} from account {} to account {} rejected: insufficient funds", amount, account.getAccountNumber(), accountNumber);
+            throw e;
+        }
         Account toAccount = accountDAO.getAccountByAccountNumber(accountNumber);
         if (toAccount == null) {
+            logger.warn("Transfer of ${} from account {} to account {} rejected: destination doesn't exist", amount, account.getAccountNumber(), accountNumber);
             throw new AccountNotFoundException("Destination account not found");
         }
 
@@ -113,8 +128,10 @@ public class AccountServiceImpl implements AccountService{
             transactionService.recordTransaction(accountNumber, TransactionType.TRANSFER_IN, amount, account.getAccountNumber());
 
             connection.commit();
+            logger.info("Transfer of ${} from account {} to account {} completed", amount, account.getAccountNumber(), accountNumber);
         } catch (SQLException e) {
             connection.rollback();
+            logger.error("Database error during transfer of ${} from account {} to account {}", amount, account.getAccountNumber(), accountNumber);
             throw e;
         } finally {
             connection.setAutoCommit(true);
@@ -127,12 +144,17 @@ public class AccountServiceImpl implements AccountService{
         validatePinFormat(pin);
         accountDAO.setPin(account.getAccountNumber(), pin);
         account.setPin(pin);
+        logger.info("Update of PIN for account {} completed", account.getAccountNumber());
     }
 
     @Override
-    public void checkPin(String pin) throws InvalidCredentialException {
-        requireLoggedIn();
-        if (account.getPin().compareTo(pin) != 0) {
+    public void checkPin(long accountNumber, String pin) throws InvalidCredentialException, AccountNotFoundException {
+        Account currAccount = accountDAO.getAccountByAccountNumber(accountNumber);
+        if (currAccount == null) {
+            throw new AccountNotFoundException("Account not found");
+        }
+        if (currAccount.getPin().compareTo(pin) != 0) {
+            logger.warn("Incorrect PIN entered for account {}", accountNumber);
             throw new InvalidCredentialException("Incorrect PIN");
         }
     }

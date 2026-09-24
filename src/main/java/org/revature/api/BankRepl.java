@@ -21,6 +21,9 @@ public class BankRepl {
 
     // Starts REPL and contains flow for user input
     public void run() {
+        System.out.print("Welcome to the Bank of CLI\n\n");
+        printHelp();
+
         while (true) {
             System.out.print("> ");
             String command = scanner.nextLine().trim();
@@ -204,8 +207,7 @@ public class BankRepl {
 
         try {
             String pin = readPin();
-            System.out.println("PIN read, checking with accountService");
-            accountService.checkPin(pin);
+            accountService.checkPin(accountService.getAccountNumber(), pin);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return;
@@ -221,6 +223,8 @@ public class BankRepl {
         } else {
             accountService.setPin(newPin);
         }
+
+        System.out.print("PIN updated\n");
     }
 
     // Helper methods
